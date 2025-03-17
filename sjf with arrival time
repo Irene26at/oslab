@@ -1,0 +1,58 @@
+#include<stdio.h>
+int main() {
+    int n;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    int at[n], bt[n], ct[n], tat[n], wt[n], completed[n], time = 0, completed_count = 0;
+    float total_tat = 0, total_wt = 0;
+
+    // Taking input for Arrival Time and Burst Time
+    for (int i = 0; i < n; i++) {
+        printf("Enter Arrival Time and Burst Time for P%d: ", i + 1);
+        scanf("%d %d", &at[i], &bt[i]);
+        completed[i] = 0; // Initially, no process is completed
+    }
+
+    while (completed_count < n) {
+        int min_index = -1;
+
+        // Find the shortest available process
+        for (int i = 0; i < n; i++) {
+            if (!completed[i] && at[i] <= time) {
+                if (min_index == -1 || bt[i] < bt[min_index]) {
+                    min_index = i;
+                }
+            }
+        }
+
+        if (min_index == -1) {
+            // No available process, move time forward
+            time++;
+        } else {
+            // Execute the shortest job
+            time += bt[min_index];
+            ct[min_index] = time;
+            tat[min_index] = ct[min_index] - at[min_index];
+            wt[min_index] = tat[min_index] - bt[min_index];
+            completed[min_index] = 1;
+            completed_count++;
+
+            // Add to totals for calculating average later
+            total_tat += tat[min_index];
+            total_wt += wt[min_index];
+        }
+    }
+
+    // Display results
+    printf("\nID\tAT\tBT\tCT\tTAT\tWT\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\n", i + 1, at[i], bt[i], ct[i], tat[i], wt[i]);
+    }
+
+    // ✅ Display average TAT and WT
+    printf("\nAverage Turnaround Time = %.2f\n", total_tat / n);
+    printf("Average Waiting Time = %.2f\n", total_wt / n);
+
+    return 0;
+}
