@@ -1,0 +1,60 @@
+#include <stdio.h>
+
+struct Process {
+    int id, burstTime, remainingTime, waitingTime, turnaroundTime;
+};
+
+int main() {
+    int n, quantum, time = 0, done;
+
+    // Input: Number of processes
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    struct Process p[n];
+
+    // Input: Burst time for each process
+    printf("Enter burst times:\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d: ", i + 1);
+        scanf("%d", &p[i].burstTime);
+        p[i].id = i + 1;
+        p[i].remainingTime = p[i].burstTime;
+        p[i].waitingTime = p[i].turnaroundTime = 0;
+    }
+
+    // Input: Time quantum
+    printf("Enter time quantum: ");
+    scanf("%d", &quantum);
+
+    // Round Robin Scheduling
+    do {
+        done = 1;
+        for (int i = 0; i < n; i++) {
+            if (p[i].remainingTime > 0) {
+                done = 0;
+                if (p[i].remainingTime > quantum) {
+                    time += quantum;
+                    p[i].remainingTime -= quantum;
+                } else {
+                    time += p[i].remainingTime;
+                    p[i].waitingTime = time - p[i].burstTime;
+                    p[i].remainingTime = 0;
+                }
+            }
+        }
+    } while (!done);
+
+    // Calculate turnaround time
+    int totalWT = 0, totalTAT = 0;
+    printf("\nProcess\tBT\tWT\tTAT\n");
+    for (int i = 0; i < n; i++) {
+        p[i].turnaroundTime = p[i].burstTime + p[i].waitingTime;
+        totalWT += p[i].waitingTime;
+        totalTAT += p[i].turnaroundTime;
+        printf("P%d\t%d\t%d\t%d\n", p[i].id, p[i].burstTime, p[i].waitingTime, p[i].turnaroundTime);
+    }
+
+    printf("\nAvg WT: %.2f\nAvg TAT: %.2f\n", (float)totalWT / n, (float)totalTAT / n);
+    return 0;
+}
